@@ -59,10 +59,12 @@ git clone <repo_url>
 ## Usage
 
 Both scripts accept the same two parameters:
-+ The --gs_path (-gs) option specifies the path to the Gold Standard file.
-+ The --data_path (-data) option specifies the path to the text files.
-+ The --out_path (-out) option specifies the path to the output predictions file.
-+ The --sub_track (-t) option specifies the task we are using the system for. In CodiEsp Track, there are 3 tasks. The third one is on Explainable AI and systems need to predict codes and provide a reference to them.
++ --gs_path (-gs) specifies the path to the Gold Standard file.
++ --gs_path2 (-gs2) specifies the path to an additional GS file (not mandatory parameter).
++ --gs_path3 (-gs3) specifies the path to an additional GS file (not mandatory parameter).
++ --data_path (-data) specifies the path to the text files.
++ --out_path (-out) specifies the path to the output predictions file.
++ --sub_track (-t) specifies the task we are using the system for. In CodiEsp Track, there are 3 tasks. The third one is on Explainable AI and systems need to predict codes and provide a reference to them.
 
 ```
 $> python lookup.py -gs gold_standard.tsv -data datapath/ -out predictions.tsv -t TASK_NUMBER
