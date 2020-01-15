@@ -172,11 +172,17 @@ def adjacent_combs(text, tokens2pos, n_words):
             tokens_group = list(filter(None, tokens_group)) # remove empty elements
             
             if tokens_group:
+                
                 # Extract previous token
-                if a > 0:
-                    token_prev = tokens[a-1:a][0]
-                else:
-                    token_prev = ''
+                token_prev = '' 
+                if a>0:
+                    c = 1
+                    token_prev = tokens_trim[a-c:a][0]
+                    # If token_prev is an empty space, it may be because there
+                    # where a double empty space in the original text
+                    while (token_prev == '') & (a>1):
+                        c = c+1
+                        token_prev = tokens_trim[a-c:a][0]
                         
                 id2token_span[count] = tokens_group
                 
@@ -302,8 +308,18 @@ def normalize_tokens(token_spans, min_upper):
     
     return token_span_processed2token_span
 
-def normalize_annot(annot, min_upper):
-       
+def normalize_str(annot, min_upper):
+    '''
+    DESCRIPTION: normalize annotation: lowercase, remove extra whitespaces, 
+    remove punctuation and remove accents.
+    
+    INPUT: annot: string
+           min_upper: int. Specifies the minimum number of characters of a word
+               to lowercase it (to prevent mistakes with acronyms).
+
+    OUTPUT: annot_processed: string
+    '''
+    
     # Lowercase
     annot_lower = ' '.join(list(map(lambda x: x.lower() if len(x)>min_upper else x, annot.split(' '))))
     

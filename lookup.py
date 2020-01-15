@@ -18,7 +18,7 @@ import os
 import time
 import argparse
 from utils import (format_ann_info, format_text_info, tokenize_span, normalize_tokens,
-                   normalize_annot, eliminate_contained_annots)
+                   normalize_str, eliminate_contained_annots)
 
 from parse_inputs import parse_tsv
 
@@ -61,7 +61,7 @@ def check_surroundings(txt, span, original_annot, n_chars, n_words, original_lab
     token_span2id, id2token_span_pos, token_spans = tokenize_span(large_span_reg,
                                                                   n_words)
     # Normalize
-    original_annotation_processed = normalize_annot(original_annot, min_upper)
+    original_annotation_processed = normalize_str(original_annot, min_upper)
     token_span_processed2token_span = normalize_tokens(token_spans, min_upper)
     
     ## 2. Match ##
