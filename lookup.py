@@ -20,6 +20,8 @@ import argparse
 from utils import (format_ann_info, format_text_info, tokenize_span, normalize_tokens,
                    normalize_annot, eliminate_contained_annots)
 
+from parse_inputs import parse_tsv
+
 
 def get_codes(df_annot, original_annot):
     return df_annot[df_annot["span"] == original_annot].drop_duplicates(subset=['code'])["code"].to_list()
@@ -176,6 +178,10 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='process user given parameters')
     parser.add_argument("-gs", "--gs_path", required = True, dest = "gs_path", 
                         help = "path to GS file")
+    parser.add_argument("-gs2", "--gs_path2", required = False, dest = "gs_path2", 
+                        default = "", help = "path to a second GS file")
+    parser.add_argument("-gs3", "--gs_path3", required = False, dest = "gs_path3", 
+                        default = "", help = "path to additional set file")
     parser.add_argument("-data", "--data_path", required = True, dest = "data_path", 
                         help = "path to text files")
     parser.add_argument("-out", "--out_path", required = True, dest = "out_path", 
@@ -185,11 +191,13 @@ def parse_arguments():
     
     args = parser.parse_args()
     gs_path = args.gs_path
+    gs_path2 = args.gs_path2
+    gs_path3 = args.gs_path3
     data_path = args.data_path
     out_path = args.out_path
     sub_track = int(args.sub_track)
     
-    return gs_path, data_path, out_path, sub_track
+    return gs_path, data_path, out_path, sub_track, gs_path2, gs_path3
 
 if __name__ == '__main__':
     ######## GET GS INFORMATION ########    
@@ -202,20 +210,19 @@ if __name__ == '__main__':
     out_path = '/home/antonio/dev_task2.tsv'
     '''
     
-    gs_path, data_path, out_path, sub_track = parse_arguments()
+    gs_path, data_path, out_path, sub_track, dev_path, add1_path = parse_arguments()
     
-    if (sub_track == 1) | (sub_track == 2):
-        df_annot = pd.read_csv(gs_path, sep='\t', 
-                               names=['clinical_case', 'label', 'code', 'reference'])
-    elif sub_track == 3: 
-        print('We are on Explainable AI track')
-        df_annot = pd.read_csv(gs_path, sep='\t', 
-                               names=['clinical_case', 'label', 'code', 'reference', 'offset'])
-        df_annot = df_annot.drop(['offset'], axis=1)
-    else:
-        raise ValueError('Incorrect sub-track value')
-    filenames_gs = df_annot['clinical_case'].drop_duplicates()
+    print('\n\nParsing input files...\n\n')
+    df_annot = parse_tsv(gs_path, sub_track)
     
+    if dev_path != "":
+        df_annot_dev = parse_tsv(dev_path, sub_track)
+        df_annot = pd.concat([df_annot, df_annot_dev], ignore_index=True)
+    
+    if add1_path != "":
+        df_annot_add1 = parse_tsv(add1_path, sub_track)
+        df_annot = pd.concat([df_annot, df_annot_add1], ignore_index=True)
+            
     ######## FORMAT ANN INFORMATION #########
     print('\n\nExtracting original annotations...\n\n')
     min_upper = 3
