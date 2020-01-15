@@ -19,5 +19,7 @@ def parse_tsv(gs_path, sub_track):
         df_annot = df_annot.drop(['offset'], axis=1)
     else:
         raise ValueError('Incorrect sub-track value')
-        
+     
+    df_annot.code = df_annot.code.str.lower()
+    
     return df_annot

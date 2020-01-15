@@ -59,7 +59,7 @@ def check_surroundings(txt, span, original_annot, n_chars, n_words, original_lab
     token_span2id, id2token_span_pos, token_spans = tokenize_span(large_span_reg,
                                                                   n_words)
     # Normalize
-    original_annotation_processed = normalize_annot(original_annot)
+    original_annotation_processed = normalize_annot(original_annot, min_upper)
     token_span_processed2token_span = normalize_tokens(token_spans, min_upper)
     
     ## 2. Match ##

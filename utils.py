@@ -257,10 +257,10 @@ def normalize_tokens(token_spans, min_upper):
     
     return token_span_processed2token_span
 
-def normalize_annot(annot):
+def normalize_annot(annot, min_upper):
        
     # Lowercase
-    annot_lower = annot.lower()
+    annot_lower = ' '.join(list(map(lambda x: x.lower() if len(x)>min_upper else x, annot.split(' '))))
     
     # Remove whitespaces
     annot_bs = re.sub('\s+', ' ', annot_lower).strip()
