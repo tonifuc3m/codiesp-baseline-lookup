@@ -43,9 +43,11 @@ def store_prediction(pos_matrix, predictions, off0, off1, original_label,
 
 def check_surroundings(txt, span, original_annot, n_chars, n_words, original_label,
                        predictions, pos_matrix):
-    # DESCRIPTION: explore the surroundings of the match.
-    #           Do not care about extra whitespaces or punctuation signs in 
-    #           the middle of the annotation.
+    '''
+    DESCRIPTION: explore the surroundings of the match.
+              Do not care about extra whitespaces or punctuation signs in 
+              the middle of the annotation.
+    '''
     
     ## 1. Get normalized surroundings ##
     large_span = txt[max(0, span[0]-n_chars):min(span[1]+n_chars, len(txt))]

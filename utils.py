@@ -15,6 +15,11 @@ def remove_accents(data):
     return ''.join(x for x in unicodedata.normalize('NFKD', data) if x in string.printable)
 
 def Flatten(ul):
+    '''
+    DESCRIPTION: receives a nested list and returns it flattened
+    INPUT: ul: list
+    OUTPUT: fl: list'''
+    
     fl = []
     for i in ul:
         if type(i) is list:
@@ -25,15 +30,19 @@ def Flatten(ul):
 
 
 def format_ann_info(df_annot, min_upper):
-    # DESCRIPTION: Build useful Python dicts from DataFrame with info from TSV file
+    '''
+    DESCRIPTION: Build useful Python dicts from DataFrame with info from TSV file
     
-    # INPUT: 
+    INPUT: df_annot: pandas DataFrame with 4 columns: 'filename', 'label', 'code', 'span'
+           min_upper: int. Specifies the minimum number of characters of a word
+               to lowercase it (to prevent mistakes with acronyms).
     
-    # OUTPUT: annot2label: python dict with every unmodified annotation and 
-    #           its label.
-    #         annot2annot_processed: python dict with every unmodified annotation
-    #           and the words it has normalized.
-    #         annotations_final: set of word in annotations.
+    OUTPUT: annot2label: python dict with every unmodified annotation and 
+              its label.
+            annot2annot_processed: python dict with every unmodified annotation
+              and the words it has normalized.
+            annotations_final: set of word in annotations.
+    '''
     
     df_annot.columns = ['filename', 'label', 'code', 'span']
  
@@ -76,11 +85,22 @@ def format_ann_info(df_annot, min_upper):
 
 
 def format_text_info(txt, min_upper):
-    # DESCRIPTION: 
-    # 1. Obtain list of words of interest in text (no STPW and longer than 1 character)
-    # 2. Obtain dictionary with words of interest and their position in the 
-    # original text. Words of interest are normalized: lowercased and removed 
-    # accents.
+    '''
+    DESCRIPTION: 
+    1. Obtain list of words of interest in text (no STPW and longer than 1 character)
+    2. Obtain dictionary with words of interest and their position in the 
+    original text. Words of interest are normalized: lowercased and removed 
+    accents.
+    
+    INPUT: txt: str with the text to format.
+           min_upper: int. Specifies the minimum number of characters of a word
+               to lowercase it (to prevent mistakes with acronyms).
+    
+    OUTPUT: words_processed2pos: dictionary relating the word normalzied (trimmed,
+                removed stpw, lowercased, removed accents) and its position in
+                the original text.
+            words_final: set of words in text.
+    '''
     
     # Get individual words and their position in original txt
     words = txt.split()
@@ -114,11 +134,22 @@ def format_text_info(txt, min_upper):
 
 
 def adjacent_combs(text, tokens2pos, n_words):
-    # DESCRIPTION: obtain all token combinations in a text. The maximum number
-    # of tokens in a combination is given by n_words.
-    # For example: text = 'buenos días míster jones', n_words = 3.
-    # output: [buenos, buenos días, buenos días míster, días, días míster, 
-    # días míster jones, míster, míster jones, jones]
+    '''
+    DESCRIPTION: obtain all token combinations in a text. The maximum number
+    of tokens in a combination is given by n_words.
+    For example: text = 'buenos días míster jones', n_words = 3.
+    output: [buenos, buenos días, buenos días míster, días, días míster, 
+    días míster jones, míster, míster jones, jones]
+    
+    INPUT: text: string with full text
+           tokens2pos: dictionary relating every token with its position in 
+                  text. {tokens: (start, end)}
+           n_words: maximum number of tokens in a combination
+    
+    OUTPUT: id2token_span: dictionary relating every token combination with an ID.
+            id2token_span_pos: dictionary relating every token combination
+                  (identified by an ID) with its position in the text.
+            token_spans: list of token combinations.'''
     
     tokens = []
     for m in re.finditer(r'\S+', text):
@@ -168,20 +199,22 @@ def adjacent_combs(text, tokens2pos, n_words):
 
 
 def strip_punct(m_end, m_start, m_group, exit_bool):
-    # DESCRIPTION: remove recursively final and initial punctuation from 
-    #           string and update start and end offset.
+    '''
+    DESCRIPTION: remove recursively final and initial punctuation from 
+              string and update start and end offset.
     
-    # INPUT: exit_bool: boolean value to tell whether to continue with the 
-    #                   recursivety.
-    #       m_end: end offset
-    #       m_start: start offset
-    #       m_group: string
+    INPUT: exit_bool: boolean value to tell whether to continue with the 
+                      recursivety.
+          m_end: end offset
+          m_start: start offset
+          m_group: string
     
-    # OUTPUT: exit_bool: boolean value to tell whether to continue with the 
-    #                   recursivety.
-    #       m_end: end offset
-    #       m_start: start offset
-    #       m_group: string
+    OUTPUT: exit_bool: boolean value to tell whether to continue with the 
+                      recursivety.
+          m_end: end offset
+          m_start: start offset
+          m_group: string
+    '''
     
     if m_group[-1] in string.punctuation:
         m_end = m_end - 1
@@ -204,8 +237,19 @@ def strip_punct(m_end, m_start, m_group, exit_bool):
 
 
 def tokenize_span(text, n_words):
+    '''
     # DESCRIPTION: obtain all token combinations in a text and information 
     # about the position of every token combination in the original text.
+    
+    # INPUT: text: string
+    #        n_words: int with the maximum number of tokens I want in a token
+    #               combination.
+    
+    # OUTPUT: token_span2id: dictionary relating every token combination with an ID.
+    #         id2token_span_pos: dictionary relating every token combination
+    #               (identified by an ID) with its position in the text.
+    #         token_spans: list of token combinations
+    '''
     
     tokens2pos = {}
     
@@ -238,6 +282,7 @@ def tokenize_span(text, n_words):
 
 def normalize_tokens(token_spans, min_upper):
 
+    # DESCRIPTION: 
     token_span2token_span = dict(zip(token_spans, token_spans))
     
     
@@ -275,12 +320,13 @@ def normalize_annot(annot, min_upper):
 
 
 def eliminate_contained_annots(pos_matrix, new_annotations, off0, off1):
-    # DESCRIPTION: function to be used when a new annotation is found. 
-    #           It check whether this new annotation contains in it an already 
-    #           discovered annotation. In that case, the old annotation is 
-    #           redundant, since the new one contains it. Then, the function
-    #           removes the
-    #           old annotation.
+    '''
+    DESCRIPTION: function to be used when a new annotation is found. 
+              It check whether this new annotation contains in it an already 
+              discovered annotation. In that case, the old annotation is 
+              redundant, since the new one contains it. Then, the function
+              removes the old annotation.
+    '''
     to_eliminate = [pos for item, pos in zip(pos_matrix, range(0, len(new_annotations))) if (off0<=item[0]) & (item[1]<=off1)]
     new_annotations = [item for item, pos in zip(new_annotations, range(0, len(new_annotations))) if pos not in to_eliminate]
     pos_matrix = [item for item in pos_matrix if not (off0<=item[0]) & (item[1]<=off1)]
