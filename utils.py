@@ -275,6 +275,12 @@ def normalize_annot(annot):
 
 
 def eliminate_contained_annots(pos_matrix, new_annotations, off0, off1):
+    # DESCRIPTION: function to be used when a new annotation is found. 
+    #           It check whether this new annotation contains in it an already 
+    #           discovered annotation. In that case, the old annotation is 
+    #           redundant, since the new one contains it. Then, the function
+    #           removes the
+    #           old annotation.
     to_eliminate = [pos for item, pos in zip(pos_matrix, range(0, len(new_annotations))) if (off0<=item[0]) & (item[1]<=off1)]
     new_annotations = [item for item, pos in zip(new_annotations, range(0, len(new_annotations))) if pos not in to_eliminate]
     pos_matrix = [item for item in pos_matrix if not (off0<=item[0]) & (item[1]<=off1)]
